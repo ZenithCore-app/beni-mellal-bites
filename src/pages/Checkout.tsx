@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { restaurants } from "@/data/restaurants";
 
 const Checkout = () => {
   const navigate = useNavigate();
