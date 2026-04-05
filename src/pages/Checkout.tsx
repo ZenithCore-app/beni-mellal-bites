@@ -3,19 +3,26 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, Clock, RotateCcw, MapPin, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { restaurants } from "@/data/restaurants";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { items, total, clearCart, updateQuantity } = useCart();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [deliverNow, setDeliverNow] = useState(true);
   const [isSubscription, setIsSubscription] = useState(false);
   const [address, setAddress] = useState("");
   const [scheduleDate, setScheduleDate] = useState("");
   const [scheduleTime, setScheduleTime] = useState("");
+  const [placing, setPlacing] = useState(false);
 
   if (items.length === 0) {
     return (
@@ -28,12 +35,74 @@ const Checkout = () => {
     );
   }
 
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
+        <p className="text-muted-foreground font-body text-lg">Please sign in to checkout</p>
+        <Button onClick={() => navigate("/auth")} className="rounded-xl font-display glow-orange">
+          Sign In
+        </Button>
+      </div>
+    );
+  }
+
   const deliveryFee = 10;
   const grandTotal = total + deliveryFee;
 
-  const handlePlaceOrder = () => {
-    clearCart();
-    navigate("/order-status");
+  const restaurantId = items[0]?.menuItem.restaurantId ?? "";
+  const restaurant = restaurants.find((r) => r.id === restaurantId);
+  const restaurantName = restaurant?.name ?? "Restaurant";
+
+  const handlePlaceOrder = async () => {
+    if (!address.trim()) {
+      toast({ title: "Please enter a delivery address", variant: "destructive" });
+      return;
+    }
+    setPlacing(true);
+    try {
+      const scheduledFor = !deliverNow && scheduleDate && scheduleTime
+        ? new Date(`${scheduleDate}T${scheduleTime}`).toISOString()
+        : null;
+
+      const { data: order, error } = await supabase
+        .from("orders")
+        .insert({
+          customer_id: user.id,
+          restaurant_id: restaurantId,
+          restaurant_name: restaurantName,
+          total,
+          delivery_fee: deliveryFee,
+          delivery_address: address,
+          scheduled_for: scheduledFor,
+          is_subscription: isSubscription,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Insert order items
+      const orderItems = items.map((item) => ({
+        order_id: order.id,
+        menu_item_id: item.menuItem.id,
+        name: item.menuItem.name,
+        price: item.menuItem.price,
+        quantity: item.quantity,
+        image: item.menuItem.image,
+        added_by: item.addedBy,
+      }));
+
+      const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
+      if (itemsError) throw itemsError;
+
+      clearCart();
+      toast({ title: "Order placed!", description: "Your order has been submitted." });
+      navigate(`/order-status/${order.id}`);
+    } catch (err: any) {
+      toast({ title: "Error placing order", description: err.message, variant: "destructive" });
+    } finally {
+      setPlacing(false);
+    }
   };
 
   return (
@@ -127,9 +196,9 @@ const Checkout = () => {
         </div>
       </div>
 
-      <Button className="w-full py-6 text-lg rounded-xl glow-orange font-display" onClick={handlePlaceOrder}>
-        Place Order — {grandTotal} MAD
-        <ArrowRight className="ml-2" size={18} />
+      <Button className="w-full py-6 text-lg rounded-xl glow-orange font-display" onClick={handlePlaceOrder} disabled={placing}>
+        {placing ? "Placing order..." : `Place Order — ${grandTotal} MAD`}
+        {!placing && <ArrowRight className="ml-2" size={18} />}
       </Button>
     </div>
   );
