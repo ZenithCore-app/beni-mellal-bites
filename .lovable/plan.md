@@ -1,68 +1,45 @@
 
-# Local Food Delivery Platform — Beni Mellal Edition
+# Functional Order & Delivery System
 
-## Design System
-- **Dark mode default** with glassmorphism: semi-transparent cards (`bg-white/10 backdrop-blur-xl`), subtle borders, glowing accents
-- **Sunset Orange** (`#FF6B35`) as primary accent color
-- **Mobile-first** responsive design
-- **Framer Motion** for page/component transitions
-- **Lucide Icons** throughout
+## Phase 1: Database Schema
+Create tables via migrations:
+- **profiles** — linked to auth.users, stores name, phone, role (customer/courier)
+- **user_roles** — separate roles table (admin, customer, courier)
+- **orders** — id, customer_id, restaurant_name, items (jsonb), status, total, delivery_address, scheduled_for, is_subscription, courier_id, created_at
+- **order_items** — order_id, menu_item_id, name, price, quantity, added_by
+- **group_sessions** — id, host_id, host_name, session_code, is_open, created_at
+- **group_session_participants** — session_id, user_name, items (jsonb)
 
-## Pages & Components
+RLS policies for all tables.
 
-### 1. Landing Page
-- **Hero Section**: Bold headline ("Beni Mellal's Favorite Bites, Delivered"), animated tagline, CTA buttons ("Order Now" / "Start Group Order")
-- **Featured Gems Section**: Glassmorphic restaurant cards with image, name, rating, delivery time, and cuisine tags
-- **Category Quick-Filter Bar**: Horizontal scrollable chips (Tagine, Pizza, Grills, Desserts, etc.)
-- **How It Works**: 3-step visual explainer (Browse → Order → Enjoy)
-- **WhatsApp Support**: Sticky floating button (bottom-right)
+## Phase 2: Authentication
+- Login/Signup page (email + password)
+- Role selection on signup (Customer or Delivery Agent)
+- Auth context provider
+- Protected routes
 
-### 2. Restaurant Browse / Search
-- Search bar with category and rating filters
-- Grid of glassmorphic restaurant cards
-- Click to open restaurant menu page
+## Phase 3: Order System
+- Update checkout to save orders to DB
+- Order status page reads from DB
+- Customer order history page
 
-### 3. Restaurant Menu Page
-- Restaurant header (banner, logo, info, rating)
-- Menu items grouped by category with add-to-cart buttons
-- Framer Motion transitions when adding items
+## Phase 4: Delivery Agent Portal
+- `/courier` dashboard (protected, courier role only)
+- View available orders (status = "ready")
+- Accept/claim an order
+- Update status buttons: Picked Up → Arrived → Delivered
+- Past deliveries history tab
 
-### 4. Floating Cart
-- Persistent floating cart summary (item count + total) visible while scrolling
-- Expandable drawer showing full cart details
-- "Proceed to Checkout" button
+## Phase 5: Group Order (DB-backed)
+- Create group session saves to DB
+- Share link with session code
+- Join session page — add items to shared cart
+- Host can finalize and place order
 
-### 5. Checkout Flow
-- Order summary with editable quantities
-- "Deliver Now" vs "Schedule for Later" toggle with date/time picker
-- "Subscription Meal" toggle for recurring weekly orders
-- Delivery address input
-- Place Order button
-
-### 6. Order Status Tracker
-- Visual progress stepper: Order Placed → Preparing → Ready for Pickup → Picked Up → Arrived → Delivered
-- Updates based on restaurant/courier status changes (mock state for now)
-
-### 7. Group Order Flow
-- "Start Group Order" button generates a unique session link
-- Shareable link UI with copy button
-- Shared cart view showing who added what
-- Host can finalize and checkout (mock real-time with local state)
-
-### 8. "Street Cred" Loyalty Profile
-- Glassmorphic profile card with XP progress bar
-- Rank badges: "Hungry Local" → "Beni Mellal Gourmet" → "King of Tagine"
-- XP earned per Dirham spent
-
-## Data & State
-- Mock restaurant data (5-8 Beni Mellal-themed restaurants with menus)
-- React state + Context for cart, orders, group order sessions
-- Prepared for future Supabase integration (external project)
-
-## Tech Stack
-- React 18 + TypeScript + Vite
-- Tailwind CSS (dark glassmorphism theme)
-- Framer Motion (transitions & animations)
-- Lucide React (icons)
-- React Router (SPA routing)
-- Tanstack React Query (ready for API integration)
+## Pages to create/update:
+- `/auth` — Login/Signup
+- `/checkout` — Save to DB
+- `/order-status/:id` — Real-time status from DB
+- `/my-orders` — Customer order history
+- `/courier` — Delivery agent dashboard
+- `/group-order` — DB-backed group sessions
