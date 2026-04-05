@@ -50,7 +50,10 @@ const Checkout = () => {
 
   // Determine restaurant from first item
   const restaurantId = items[0]?.menuItem.restaurantId ?? "";
-  const restaurantName = restaurantId; // We'll use the ID as fallback
+  // Look up restaurant name from our data
+  const { restaurants } = require("@/data/restaurants");
+  const restaurant = restaurants.find((r: any) => r.id === restaurantId);
+  const restaurantName = restaurant?.name ?? restaurantId;
 
   const handlePlaceOrder = async () => {
     if (!address.trim()) {
