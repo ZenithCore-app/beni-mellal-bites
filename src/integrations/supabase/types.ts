@@ -14,16 +14,238 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      group_session_items: {
+        Row: {
+          created_at: string
+          id: string
+          menu_item_id: string
+          menu_item_image: string | null
+          menu_item_name: string
+          menu_item_price: number
+          quantity: number
+          session_id: string
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          menu_item_id: string
+          menu_item_image?: string | null
+          menu_item_name: string
+          menu_item_price: number
+          quantity?: number
+          session_id: string
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          menu_item_id?: string
+          menu_item_image?: string | null
+          menu_item_name?: string
+          menu_item_price?: number
+          quantity?: number
+          session_id?: string
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_session_items_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "group_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_sessions: {
+        Row: {
+          created_at: string
+          host_id: string
+          host_name: string
+          id: string
+          is_open: boolean
+          restaurant_id: string | null
+          session_code: string
+        }
+        Insert: {
+          created_at?: string
+          host_id: string
+          host_name: string
+          id?: string
+          is_open?: boolean
+          restaurant_id?: string | null
+          session_code: string
+        }
+        Update: {
+          created_at?: string
+          host_id?: string
+          host_name?: string
+          id?: string
+          is_open?: boolean
+          restaurant_id?: string | null
+          session_code?: string
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          id: string
+          image: string | null
+          menu_item_id: string
+          name: string
+          order_id: string
+          price: number
+          quantity: number
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          id?: string
+          image?: string | null
+          menu_item_id: string
+          name: string
+          order_id: string
+          price: number
+          quantity?: number
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          id?: string
+          image?: string | null
+          menu_item_id?: string
+          name?: string
+          order_id?: string
+          price?: number
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          courier_id: string | null
+          created_at: string
+          customer_id: string | null
+          delivery_address: string
+          delivery_fee: number
+          group_session_id: string | null
+          id: string
+          is_subscription: boolean
+          restaurant_id: string
+          restaurant_name: string
+          scheduled_for: string | null
+          status: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          courier_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          delivery_address: string
+          delivery_fee?: number
+          group_session_id?: string | null
+          id?: string
+          is_subscription?: boolean
+          restaurant_id: string
+          restaurant_name: string
+          scheduled_for?: string | null
+          status?: string
+          total: number
+          updated_at?: string
+        }
+        Update: {
+          courier_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          delivery_address?: string
+          delivery_fee?: number
+          group_session_id?: string | null
+          id?: string
+          is_subscription?: boolean
+          restaurant_id?: string
+          restaurant_name?: string
+          scheduled_for?: string | null
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "customer" | "courier" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +372,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["customer", "courier", "admin"],
+    },
   },
 } as const
