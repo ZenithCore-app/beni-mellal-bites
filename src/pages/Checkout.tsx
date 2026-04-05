@@ -49,12 +49,9 @@ const Checkout = () => {
   const deliveryFee = 10;
   const grandTotal = total + deliveryFee;
 
-  // Determine restaurant from first item
   const restaurantId = items[0]?.menuItem.restaurantId ?? "";
-  // Look up restaurant name from our data
-  const { restaurants } = require("@/data/restaurants");
-  const restaurant = restaurants.find((r: any) => r.id === restaurantId);
-  const restaurantName = restaurant?.name ?? restaurantId;
+  const restaurant = restaurants.find((r) => r.id === restaurantId);
+  const restaurantName = restaurant?.name ?? "Restaurant";
 
   const handlePlaceOrder = async () => {
     if (!address.trim()) {
