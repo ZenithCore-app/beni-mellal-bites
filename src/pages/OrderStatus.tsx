@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, CheckCircle2, Circle, Package, Truck, MapPin, Home } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
 const STEPS = [
