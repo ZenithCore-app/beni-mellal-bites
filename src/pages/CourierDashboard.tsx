@@ -133,6 +133,11 @@ const CourierDashboard = () => {
         <div>
           <h3 className="font-display font-semibold">{order.restaurant_name}</h3>
           <p className="text-xs text-muted-foreground font-body">{order.delivery_address}</p>
+          {order.customer_phone && (
+            <a href={`tel:${order.customer_phone}`} className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1">
+              <Phone size={12} /> {order.customer_phone}
+            </a>
+          )}
         </div>
         <span className="text-primary font-bold font-display">{Number(order.total) + Number(order.delivery_fee)} MAD</span>
       </div>
