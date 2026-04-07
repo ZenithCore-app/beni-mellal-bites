@@ -16,6 +16,7 @@ interface OrderRow {
   status: string;
   created_at: string;
   customer_id: string;
+  customer_phone?: string;
 }
 
 const STATUS_FLOW = ["picked_up", "arrived", "delivered"] as const;
