@@ -16,6 +16,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [phone, setPhone] = useState("");
   const [role, setRole] = useState<"customer" | "courier">("customer");
   const [loading, setLoading] = useState(false);
 
