@@ -28,7 +28,7 @@ const Auth = () => {
         await signIn(email, password);
         toast({ title: "Welcome back!" });
       } else {
-        await signUp(email, password, displayName, role);
+        await signUp(email, password, displayName, role, phone);
         toast({ title: "Account created!", description: "You're now signed in." });
       }
       navigate(role === "courier" ? "/courier" : "/");
