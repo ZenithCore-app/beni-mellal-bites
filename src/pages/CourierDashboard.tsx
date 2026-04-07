@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Truck, Package, CheckCircle, ArrowRight, Clock, LogOut, History } from "lucide-react";
+import { Truck, Package, CheckCircle, ArrowRight, Clock, LogOut, History, Phone } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
