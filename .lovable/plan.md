@@ -1,45 +1,41 @@
 
-# Functional Order & Delivery System
 
-## Phase 1: Database Schema
-Create tables via migrations:
-- **profiles** — linked to auth.users, stores name, phone, role (customer/courier)
-- **user_roles** — separate roles table (admin, customer, courier)
-- **orders** — id, customer_id, restaurant_name, items (jsonb), status, total, delivery_address, scheduled_for, is_subscription, courier_id, created_at
-- **order_items** — order_id, menu_item_id, name, price, quantity, added_by
-- **group_sessions** — id, host_id, host_name, session_code, is_open, created_at
-- **group_session_participants** — session_id, user_name, items (jsonb)
+# Fix: Orders Not Visible to Couriers
 
-RLS policies for all tables.
+## Problem
+Orders start at status `"placed"`. The courier dashboard filters for `status = 'ready'` with `courier_id IS NULL`. There is no restaurant owner interface to advance orders from `placed → preparing → ready`, so orders are stuck and invisible to couriers.
 
-## Phase 2: Authentication
-- Login/Signup page (email + password)
-- Role selection on signup (Customer or Delivery Agent)
-- Auth context provider
-- Protected routes
+## Solution
+Two changes needed:
 
-## Phase 3: Order System
-- Update checkout to save orders to DB
-- Order status page reads from DB
-- Customer order history page
+### 1. Add a Restaurant Owner Dashboard (`/restaurant-dashboard`)
+A simple page where restaurant owners can see incoming orders and update their status:
+- View orders for their restaurant(s) with status `placed` or `preparing`
+- Button to mark `placed → preparing`
+- Button to mark `preparing → ready` (this makes it visible to couriers)
 
-## Phase 4: Delivery Agent Portal
-- `/courier` dashboard (protected, courier role only)
-- View available orders (status = "ready")
-- Accept/claim an order
-- Update status buttons: Picked Up → Arrived → Delivered
-- Past deliveries history tab
+This requires:
+- A new RLS policy on `orders` allowing restaurant-role users to SELECT and UPDATE orders for their restaurant
+- A new `restaurant` value added to the `app_role` enum
+- A new page component and route
 
-## Phase 5: Group Order (DB-backed)
-- Create group session saves to DB
-- Share link with session code
-- Join session page — add items to shared cart
-- Host can finalize and place order
+### 2. Simpler Alternative — Auto-advance orders (recommended for now)
+Since there are no real restaurant owners yet, automatically set new orders to `"ready"` status so couriers can immediately see and claim them. This unblocks the entire delivery flow for testing.
 
-## Pages to create/update:
-- `/auth` — Login/Signup
-- `/checkout` — Save to DB
-- `/order-status/:id` — Real-time status from DB
-- `/my-orders` — Customer order history
-- `/courier` — Delivery agent dashboard
-- `/group-order` — DB-backed group sessions
+Later, when a restaurant dashboard is built, the default can revert to `"placed"`.
+
+**Implementation:**
+- In `Checkout.tsx`, change the order insert to set `status: 'ready'` instead of the default `'placed'`
+- This is a one-line change that immediately makes the courier flow functional
+
+### 3. Add a simple admin/status control (bonus)
+Add a temporary "Simulate Restaurant" section on the order status page that lets the customer manually advance their order to `ready` — useful for demo/testing purposes.
+
+## Recommended Approach
+Implement **option 2** (set status to `ready` on insert) as an immediate fix, plus **option 3** (a small simulate button on the order status page) so users can test the full flow. This is minimal code and unblocks everything.
+
+## Files to Change
+- `src/pages/Checkout.tsx` — add `status: 'ready'` to the order insert
+- `src/pages/OrderStatus.tsx` — add a "Simulate: mark as ready" button for testing
+- Database migration — update the existing order from `placed` to `ready` so it appears for couriers now
+
