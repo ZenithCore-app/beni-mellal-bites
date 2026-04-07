@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Truck, Package, CheckCircle, ArrowRight, Clock, LogOut, History } from "lucide-react";
+import { Truck, Package, CheckCircle, ArrowRight, Clock, LogOut, History, Phone } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ interface OrderRow {
   status: string;
   created_at: string;
   customer_id: string;
+  customer_phone?: string;
 }
 
 const STATUS_FLOW = ["picked_up", "arrived", "delivered"] as const;
@@ -29,6 +30,18 @@ const CourierDashboard = () => {
   const [activeOrders, setActiveOrders] = useState<OrderRow[]>([]);
   const [pastOrders, setPastOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const enrichWithPhone = async (orders: OrderRow[]): Promise<OrderRow[]> => {
+    if (orders.length === 0) return orders;
+    const customerIds = [...new Set(orders.map((o) => o.customer_id).filter(Boolean))];
+    if (customerIds.length === 0) return orders;
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("user_id, phone")
+      .in("user_id", customerIds);
+    const phoneMap = new Map((profiles ?? []).map((p) => [p.user_id, p.phone]));
+    return orders.map((o) => ({ ...o, customer_phone: phoneMap.get(o.customer_id) ?? undefined }));
+  };
 
   const fetchOrders = async () => {
     if (!user) return;
@@ -54,9 +67,17 @@ const CourierDashboard = () => {
       .eq("status", "delivered")
       .order("created_at", { ascending: false });
 
-    setAvailableOrders((available as OrderRow[]) ?? []);
-    setActiveOrders((active as OrderRow[]) ?? []);
-    setPastOrders((past as OrderRow[]) ?? []);
+    const allRaw = [
+      ...(available ?? []),
+      ...(active ?? []),
+      ...(past ?? []),
+    ] as OrderRow[];
+    const enriched = await enrichWithPhone(allRaw);
+
+    const enrichedMap = new Map(enriched.map((o) => [o.id, o]));
+    setAvailableOrders((available ?? []).map((o: any) => enrichedMap.get(o.id) ?? o));
+    setActiveOrders((active ?? []).map((o: any) => enrichedMap.get(o.id) ?? o));
+    setPastOrders((past ?? []).map((o: any) => enrichedMap.get(o.id) ?? o));
   };
 
   useEffect(() => {
@@ -112,6 +133,11 @@ const CourierDashboard = () => {
         <div>
           <h3 className="font-display font-semibold">{order.restaurant_name}</h3>
           <p className="text-xs text-muted-foreground font-body">{order.delivery_address}</p>
+          {order.customer_phone && (
+            <a href={`tel:${order.customer_phone}`} className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1">
+              <Phone size={12} /> {order.customer_phone}
+            </a>
+          )}
         </div>
         <span className="text-primary font-bold font-display">{Number(order.total) + Number(order.delivery_fee)} MAD</span>
       </div>

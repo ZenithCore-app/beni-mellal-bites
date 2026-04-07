@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { LogIn, UserPlus, Truck, ShoppingBag } from "lucide-react";
+import { LogIn, UserPlus, Truck, ShoppingBag, Phone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [phone, setPhone] = useState("");
   const [role, setRole] = useState<"customer" | "courier">("customer");
   const [loading, setLoading] = useState(false);
 
@@ -27,7 +28,7 @@ const Auth = () => {
         await signIn(email, password);
         toast({ title: "Welcome back!" });
       } else {
-        await signUp(email, password, displayName, role);
+        await signUp(email, password, displayName, role, phone);
         toast({ title: "Account created!", description: "You're now signed in." });
       }
       navigate(role === "courier" ? "/courier" : "/");
@@ -61,6 +62,17 @@ const Auth = () => {
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Your name"
+                  className="glass border-white/10 rounded-xl font-body mt-1"
+                  required
+                />
+              </div>
+              <div>
+                <Label className="font-body">Phone Number</Label>
+                <Input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+212 6XX XXX XXX"
                   className="glass border-white/10 rounded-xl font-body mt-1"
                   required
                 />

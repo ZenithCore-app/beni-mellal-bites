@@ -7,7 +7,7 @@ interface AuthContextType {
   loading: boolean;
   userRole: "customer" | "courier" | "admin" | null;
   displayName: string;
-  signUp: (email: string, password: string, displayName: string, role: "customer" | "courier") => Promise<void>;
+  signUp: (email: string, password: string, displayName: string, role: "customer" | "courier", phone?: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, name: string, role: "customer" | "courier") => {
+  const signUp = async (email: string, password: string, name: string, role: "customer" | "courier", phone?: string) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -76,6 +76,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) throw error;
     if (data.user) {
       await supabase.from("user_roles").insert({ user_id: data.user.id, role });
+      if (phone) {
+        await supabase.from("profiles").update({ phone }).eq("user_id", data.user.id);
+      }
     }
   };
 
