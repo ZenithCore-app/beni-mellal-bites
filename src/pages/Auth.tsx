@@ -67,6 +67,17 @@ const Auth = () => {
                 />
               </div>
               <div>
+                <Label className="font-body">Phone Number</Label>
+                <Input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+212 6XX XXX XXX"
+                  className="glass border-white/10 rounded-xl font-body mt-1"
+                  required
+                />
+              </div>
+              <div>
                 <Label className="font-body mb-2 block">I am a</Label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
