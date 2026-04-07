@@ -7,7 +7,7 @@ interface AuthContextType {
   loading: boolean;
   userRole: "customer" | "courier" | "admin" | null;
   displayName: string;
-  signUp: (email: string, password: string, displayName: string, role: "customer" | "courier") => Promise<void>;
+  signUp: (email: string, password: string, displayName: string, role: "customer" | "courier", phone?: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
