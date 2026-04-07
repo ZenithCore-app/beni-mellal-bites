@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { LogIn, UserPlus, Truck, ShoppingBag } from "lucide-react";
+import { LogIn, UserPlus, Truck, ShoppingBag, Phone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
