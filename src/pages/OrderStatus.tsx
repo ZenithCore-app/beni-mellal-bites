@@ -117,6 +117,37 @@ const OrderStatusPage = () => {
         </div>
       </div>
 
+      {/* Simulate Restaurant Controls */}
+      {(order.status === "placed" || order.status === "preparing") && (
+        <div className="glass-card p-4 mb-6 space-y-2">
+          <h2 className="font-display font-semibold text-sm">Simulate Restaurant</h2>
+          <div className="flex gap-2">
+            {order.status === "placed" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-xl font-body text-xs"
+                onClick={async () => {
+                  await supabase.from("orders").update({ status: "preparing" }).eq("id", order.id);
+                }}
+              >
+                Mark Preparing
+              </Button>
+            )}
+            <Button
+              size="sm"
+              className="rounded-xl font-body text-xs glow-orange"
+              onClick={async () => {
+                await supabase.from("orders").update({ status: "ready" }).eq("id", order.id);
+              }}
+            >
+              Mark Ready for Pickup
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">Use these buttons to simulate a restaurant advancing your order.</p>
+        </div>
+      )}
+
       {/* Order Items */}
       <div className="glass-card p-5">
         <h2 className="font-display font-semibold mb-3">Items</h2>

@@ -70,6 +70,7 @@ const Checkout = () => {
           customer_id: user.id,
           restaurant_id: restaurantId,
           restaurant_name: restaurantName,
+          status: "ready",
           total,
           delivery_fee: deliveryFee,
           delivery_address: address,
