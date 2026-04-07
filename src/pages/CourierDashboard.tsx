@@ -31,6 +31,18 @@ const CourierDashboard = () => {
   const [pastOrders, setPastOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const enrichWithPhone = async (orders: OrderRow[]): Promise<OrderRow[]> => {
+    if (orders.length === 0) return orders;
+    const customerIds = [...new Set(orders.map((o) => o.customer_id).filter(Boolean))];
+    if (customerIds.length === 0) return orders;
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("user_id, phone")
+      .in("user_id", customerIds);
+    const phoneMap = new Map((profiles ?? []).map((p) => [p.user_id, p.phone]));
+    return orders.map((o) => ({ ...o, customer_phone: phoneMap.get(o.customer_id) ?? undefined }));
+  };
+
   const fetchOrders = async () => {
     if (!user) return;
 
@@ -55,9 +67,17 @@ const CourierDashboard = () => {
       .eq("status", "delivered")
       .order("created_at", { ascending: false });
 
-    setAvailableOrders((available as OrderRow[]) ?? []);
-    setActiveOrders((active as OrderRow[]) ?? []);
-    setPastOrders((past as OrderRow[]) ?? []);
+    const allRaw = [
+      ...(available ?? []),
+      ...(active ?? []),
+      ...(past ?? []),
+    ] as OrderRow[];
+    const enriched = await enrichWithPhone(allRaw);
+
+    const enrichedMap = new Map(enriched.map((o) => [o.id, o]));
+    setAvailableOrders((available ?? []).map((o: any) => enrichedMap.get(o.id) ?? o));
+    setActiveOrders((active ?? []).map((o: any) => enrichedMap.get(o.id) ?? o));
+    setPastOrders((past ?? []).map((o: any) => enrichedMap.get(o.id) ?? o));
   };
 
   useEffect(() => {
