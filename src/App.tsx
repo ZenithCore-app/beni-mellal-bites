@@ -29,7 +29,7 @@ const App = () => (
         <CartProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter basename={import.meta.env.PROD ? '/beni-mellal-bites' : '/'}>
+          <BrowserRouter basename="/beni-mellal-bites">
             <Navbar />
             <Routes>
               <Route path="/" element={<Index />} />
