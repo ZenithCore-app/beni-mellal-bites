@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { notificationTemplates } from "@/lib/push-notifications";
 
 interface SessionItem {
   id: string;
@@ -21,6 +23,7 @@ const GroupOrder = () => {
   const [searchParams] = useSearchParams();
   const { user, displayName } = useAuth();
   const { toast } = useToast();
+  const { sendNotification } = usePushNotifications();
   const [sessionCode, setSessionCode] = useState<string | null>(searchParams.get("session"));
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [hostName, setHostName] = useState("");
@@ -96,6 +99,9 @@ const GroupOrder = () => {
     setSessionId(data.id);
     setIsHost(true);
     setHostName(displayName || "Host");
+    
+    // Send notification to host that session was created
+    await sendNotification(notificationTemplates.groupOrderInvite(code, displayName || "Host"));
   };
 
   const joinSession = () => {

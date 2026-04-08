@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { notificationTemplates } from "@/lib/push-notifications";
 
 interface OrderRow {
   id: string;
@@ -24,6 +26,7 @@ const STATUS_FLOW = ["picked_up", "arrived", "delivered"] as const;
 const CourierDashboard = () => {
   const { user, signOut, displayName } = useAuth();
   const { toast } = useToast();
+  const { sendNotification } = usePushNotifications();
   const navigate = useNavigate();
   const [tab, setTab] = useState<"available" | "active" | "history">("available");
   const [availableOrders, setAvailableOrders] = useState<OrderRow[]>([]);
@@ -99,6 +102,10 @@ const CourierDashboard = () => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Order claimed!", description: "Marked as picked up." });
+      
+      // Send notification to courier about order assignment
+      await sendNotification(notificationTemplates.courierOrderAssigned(orderId));
+      
       fetchOrders();
     }
     setLoading(false);

@@ -11,12 +11,15 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { restaurants } from "@/data/restaurants";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { notificationTemplates } from "@/lib/push-notifications";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { items, total, clearCart, updateQuantity } = useCart();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { sendNotification } = usePushNotifications();
   const [deliverNow, setDeliverNow] = useState(true);
   const [isSubscription, setIsSubscription] = useState(false);
   const [address, setAddress] = useState("");
@@ -98,6 +101,10 @@ const Checkout = () => {
 
       clearCart();
       toast({ title: "Order placed!", description: "Your order has been submitted." });
+      
+      // Send order placed notification
+      await sendNotification(notificationTemplates.orderPlaced(order.id));
+      
       navigate(`/order-status/${order.id}`);
     } catch (err: any) {
       toast({ title: "Error placing order", description: err.message, variant: "destructive" });

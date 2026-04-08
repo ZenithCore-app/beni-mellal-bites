@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { PushPermissionPrompt } from "@/components/PushPermissionPrompt";
 import Index from "./pages/Index";
 import Restaurants from "./pages/Restaurants";
 import RestaurantMenu from "./pages/RestaurantMenu";
@@ -44,6 +45,7 @@ const App = () => (
             </Routes>
             <FloatingCart />
             <WhatsAppButton />
+            <PushPermissionPrompt showPrompt={true} />
           </BrowserRouter>
         </CartProvider>
       </AuthProvider>
