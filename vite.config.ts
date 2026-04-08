@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [react()],
+  base: mode === 'production' ? '/beni-mellal-bites/' : '/',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
