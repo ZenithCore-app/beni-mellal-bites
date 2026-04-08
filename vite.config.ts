@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [react()],
-  base: process.env.VITE_BASE_URL || (mode === 'production' ? '/beni-mellal-bites/' : '/'),
+  base: mode === 'production' ? '/beni-mellal-bites/' : '/',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
