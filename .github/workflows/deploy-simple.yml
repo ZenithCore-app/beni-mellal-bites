@@ -39,4 +39,3 @@ jobs:
         destination_dir: beni-mellal-bites
         user_name: github-actions[bot]
         user_email: github-actions[bot]@users.noreply.github.com
-        publish_branch: main
