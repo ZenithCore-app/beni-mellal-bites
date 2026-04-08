@@ -5,25 +5,22 @@
     <title>BeniBites - Food Delivery in Beni Mellal</title>
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
-      // MIT License
-      // https://github.com/rafgraph/spa-github-pages
-      // This script takes the current url and replaces the path with the hash
-      (function(l) {
-        if (l.search[1] === '/') {
-          var decoded = l.search.slice(1).split('&').map(function(s) { 
-            return s.replace(/~and~/g, '&') 
-          }).join('?');
-          window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
-        }
-      }(window.location))
+      // This script preserves the original path and redirects to the app
+      (function() {
+        var path = window.location.pathname;
+        var search = window.location.search;
+        var hash = window.location.hash;
+        
+        // Store the original path for the app to handle
+        sessionStorage.setItem('redirect', path);
+        
+        // Redirect to the app's index.html with the original path
+        window.location.replace('/beni-mellal-bites/' + search + hash);
+      })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script>
-      // Redirect to the main app
-      sessionStorage.setItem('redirect', location.pathname);
-      location.replace('/beni-mellal-bites/' + location.search + location.hash);
-    </script>
   </head>
   <body>
+    <p>Redirecting to BeniBites...</p>
   </body>
 </html>
